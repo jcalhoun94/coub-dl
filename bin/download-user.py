@@ -8,6 +8,7 @@ from unidecode import unidecode
 import urllib2
 
 def download_coubs(username, maxcoubs):
+    PATH = os.path.dirname(__file__)
     coubs = 0 # keep count of downloads
     user_url = 'https://coub.com/api/v2/timeline/channel/' + username # json url
     json_data = json.loads(urllib2.urlopen(user_url).read()) # read json
@@ -16,7 +17,7 @@ def download_coubs(username, maxcoubs):
             permalink = json_data["coubs"][i]["permalink"] # get the unique id
             title = re.sub(r'\W+', '', unidecode(json_data["coubs"][i]["title"]).replace(' ', '_')).replace('_', '-') # use a standard filenamen
             mp4_url = 'https://coub.com/views/' + permalink # coub link
-            os.system(os.path.dirname(__file__) + '/coub-dl.js -i ' + mp4_url + ' -o ' + os.path.dirname(__file__) + '/../mp4/' + title + '.mp4 -A -C') # invoke coub-dl
+            os.system(PATH + '/coub-dl.js -i ' + mp4_url + ' -o ' + PATH + '/../mp4/' + title + '.mp4 -A -C') # invoke coub-dl
             coubs = coubs + 1 # increment coub
             if coubs == maxcoubs: # if at maximum, return
                 return
