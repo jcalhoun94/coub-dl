@@ -54,7 +54,7 @@ async function run() {
   const coub = await Coub.fetch(input)
   if (!coub) {
     return console.log(
-      'Couldn\'t fetch your coub. Please check the url/id and try again.'
+      'Couldn\'t fetch ' + output + '. Please check the url/id and try again.'
     )
   }
 

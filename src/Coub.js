@@ -74,6 +74,8 @@ class Coub extends FFmkek {
     if (!metadata) return null
 
     const { video: videoURLs, audio: audioURLs } = metadata.file_versions.html5
+    if (!videoURLs) return null
+    if (!audioURLs) return null
     const [videoURL, audioURL] = [videoURLs, audioURLs].map(
       obj => (obj[quality] || obj.med).url
     )
