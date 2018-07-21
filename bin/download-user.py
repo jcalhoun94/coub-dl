@@ -15,7 +15,7 @@ def download_coubs(username, maxcoubs):
     for page in range(1, json_data["total_pages"] + 1): # for each page
         for i in range(len(json_data["coubs"])): # for each coub
             permalink = json_data["coubs"][i]["permalink"] # get the unique id
-            title = re.sub('\s+', ' ', unidecode(json_data["coubs"][i]["title"])) + ' ' + permalink + '.mp4' # use a standard filenamen
+            title = (re.sub('\s+', ' ', unidecode(json_data["coubs"][i]["title"])) + ' ' + permalink + '.mp4').lstrip() # use a standard filenamen
             mp4_url = 'https://coub.com/views/' + permalink # coub link
             os.system(PATH + '/coub-dl.js -i ' + mp4_url + ' -o ' + PATH + '/../mp4/"' + title + '" -A -C') # invoke coub-dl
             coubs = coubs + 1 # increment coub
