@@ -7,6 +7,7 @@ import random
 import sys
 import urllib2
 
+audio = True
 randomize = False
 
 def download_tag(tag, maxcoubs):
@@ -15,7 +16,7 @@ def download_tag(tag, maxcoubs):
     if PATH == '':
         PATH = '.'
         
-    tag_url = 'https://coub.com/api/v2/timeline/tag/' + tag
+    tag_url = 'https://coub.com/api/v2/timeline/tag/' + urllib2.quote(tag)
     tag_json = json.loads(urllib2.urlopen(tag_url).read())
     num_pages = tag_json['total_pages']
     pages = range(num_pages)
@@ -32,7 +33,10 @@ def download_tag(tag, maxcoubs):
             permalink = tag_json['coubs'][i]['permalink']
             title = permalink + '.mp4'
             mp4_url = 'https://coub.com/views/' + permalink
-            os.system(PATH + '/coub-dl.js -i ' + mp4_url + ' -o ' + PATH + '/../mp4/' + title + ' -A -C')
+            command = PATH + '/coub-dl.js -i ' + mp4_url + ' -o ' + PATH + '/../mp4/' + title
+            if not audio:
+                command += ' -A'
+            os.system(command + ' -C')
             coub_count += 1
             if coub_count == maxcoubs:
                 return
@@ -40,8 +44,10 @@ def download_tag(tag, maxcoubs):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-r', action = 'store_true')
+    parser.add_argument('-n', nargs = 1, type = int, default = -1)
+    parser.add_argument('-a', action = 'store_false', default = True)
     parser.add_argument('tag')
-    parser.add_argument('num', type = int, default = -1)
     args = parser.parse_args()
     randomize = args.r
-    download_tag(args.tag, args.num)
+    audio = args.a
+    download_tag(args.tag, args.n)
