@@ -21,12 +21,15 @@ def download_coubs(args):
         random.shuffle(pages)
 
     coub_count = 0
+    max_coubs = args.n[0] if isinstance(args.n, list) else args.n
     for page in pages: #for each page
         coubs_json = json.loads(urllib2.urlopen(coubs_url + '?page=' + str(page + 1)).read())
         coubs = range(len(coubs_json['coubs']))
         if args.r:
             random.shuffle(coubs)
         for i in coubs: #for each coub
+            if args.x and coubs_json['coubs'][i]['not_safe_for_work'] == 0:
+                continue
             permalink = coubs_json['coubs'][i]['permalink']
             title = coubs_json['coubs'][i]['title']
             filename = '\"' + permalink + ' - ' + title + '.mp4' + '\"'
@@ -37,7 +40,7 @@ def download_coubs(args):
                 command += ' -A'
             os.system(command + ' -C')
             coub_count += 1
-            if coub_count == args.n[0]:
+            if coub_count == max_coubs:
                 return
 
 if __name__ == '__main__':
@@ -46,5 +49,6 @@ if __name__ == '__main__':
     parser.add_argument('-n', nargs = 1, type = int, default = -1, help = 'max number of coubs to download')
     parser.add_argument('-a', action = 'store_false', default = True, help = 'download without audio')
     parser.add_argument('-t', action = 'store_true', default = False, help = 'change search from channel to tag')
+    parser.add_argument('-x', action = 'store_true', default = False, help = '')
     parser.add_argument('search')
     download_coubs(parser.parse_args())
