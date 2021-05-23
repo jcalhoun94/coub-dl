@@ -5,6 +5,7 @@ import json
 import os
 import random
 import sys
+import tempfile
 import urllib2
 
 def get_relative_path():
@@ -38,7 +39,7 @@ def get_download_command(args, permalink, title, bin_path, mp4_path):
     command = os.path.join(bin_path, 'coub-dl.js') + ' -i ' + mp4_url + ' -o ' + os.path.join(mp4_path, filename)
     if not args.a:
         command += ' -A'
-    command += ' -C > ' + os.path.join(mp4_path, 'test.txt')
+    command += ' -C'
     return command
 
 def download_coubs(args):
@@ -57,8 +58,8 @@ def download_coubs(args):
             if args.x and (nsfw != True):
                 continue
             command = get_download_command(args, permalink, title, bin_path, mp4_path)
-            os.system(command)
-            with open(os.path.join(mp4_path, 'test.txt')) as f:
+            with tempfile.NamedTemporaryFile(delete = True) as f:
+                os.system(command + ' > ' + f.name)
                 if f.read() != '':
                     continue
             current_count += 1
