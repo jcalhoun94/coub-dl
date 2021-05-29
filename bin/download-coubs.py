@@ -12,15 +12,39 @@ def get_relative_path():
     path = os.path.dirname(__file__)
     return '.' if path == '' else path
 
+def try_channel(args, url):
+    url += 'channel/' + urllib2.quote(args.search)
+    try:
+        return (url, json.loads(urllib2.urlopen(url).read()))
+    except urllib2.HTTPError:
+        return (url, None)
+
+def try_community(args, url):
+    url += 'community/' + urllib2.quote(args.search) + '/half'
+    try:
+        return (url, json.loads(urllib2.urlopen(url).read()))
+    except urllib2.HTTPError:
+        return (url, None)
+
+def try_tag(args, url):
+    url += 'tag/' + urllib2.quote(args.search)
+    try:
+        return (url, json.loads(urllib2.urlopen(url).read()))
+    except urllib2.HTTPError:
+        return (url, None)
+
+def get_url_and_json(args, url):
+    (coubs_url, coubs_json) = try_channel(args, url)
+    if coubs_json is None:
+        (coubs_url, coubs_json) = try_community(args, url)
+    if coubs_json is None:
+        (coubs_url, coubs_json) = try_tag(args, url)
+    if coubs_json is None:
+        raise RuntimeError
+    return (coubs_url, coubs_json)
+
 def get_coubs_info(args):
-    coubs_url = 'https://coub.com/api/v2/timeline/'
-    if args.t: coubs_url += 'tag/'
-    elif args.c: coubs_url += 'community/'
-    else: coubs_url += 'channel/'
-    coubs_url += urllib2.quote(args.search)
-    if args.c:
-        coubs_url += '/half'
-    coubs_json = json.loads(urllib2.urlopen(coubs_url).read())
+    (coubs_url, coubs_json) = get_url_and_json(args, 'https://coub.com/api/v2/timeline/')
     coubs_pages = range(coubs_json['total_pages'])
     if args.r:
         random.shuffle(coubs_pages)
@@ -79,8 +103,6 @@ def download_coubs(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     type_group = parser.add_mutually_exclusive_group()
-    type_group.add_argument('-t', action = 'store_true', default = False, help = 'change search from channel to tag')
-    type_group.add_argument('-c', action = 'store_true', default = False, help = 'change search from channel to community')
     parser.add_argument('-r', action = 'store_true', default = False, help = 'randomize coubs')
     parser.add_argument('-n', nargs = 1, type = int, default = -1, help = 'max number of coubs to download')
     parser.add_argument('-a', action = 'store_false', default = True, help = 'download without audio')
