@@ -34,9 +34,9 @@ def try_tag(args, url):
         return (url, None)
 
 def get_url_and_json(args, url):
-    (coubs_url, coubs_json) = try_channel(args, url)
+    (coubs_url, coubs_json) = try_community(args, url)
     if coubs_json is None:
-        (coubs_url, coubs_json) = try_community(args, url)
+        (coubs_url, coubs_json) = try_channel(args, url)
     if coubs_json is None:
         (coubs_url, coubs_json) = try_tag(args, url)
     if coubs_json is None:
@@ -58,7 +58,10 @@ def get_page_info(args, coubs_url, coubs_json, page):
     return (page_json, page_coubs)
 
 def get_coub_info(args, page_json, coub):
-    permalink = page_json['coubs'][coub]['permalink']
+    if page_json['coubs'][coub]['recoub_to'] is None:
+        permalink = page_json['coubs'][coub]['permalink']
+    else:
+        permalink = page_json['coubs'][coub]['recoub_to']['permalink']
     title = page_json['coubs'][coub]['title']
     user = page_json['coubs'][coub]['channel']['permalink']
     nsfw = page_json['coubs'][coub]['not_safe_for_work']
@@ -102,7 +105,6 @@ def download_coubs(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    type_group = parser.add_mutually_exclusive_group()
     parser.add_argument('-r', action = 'store_true', default = False, help = 'randomize coubs')
     parser.add_argument('-n', nargs = 1, type = int, default = -1, help = 'max number of coubs to download')
     parser.add_argument('-a', action = 'store_false', default = True, help = 'download without audio')
